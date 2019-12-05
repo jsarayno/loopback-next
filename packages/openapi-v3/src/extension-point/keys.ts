@@ -3,8 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import { BindingKey } from '@loopback/context';
-import { SpecService } from './spec-contributor.service';
+import {BindingKey} from '@loopback/context';
+import {SpecService} from './spec-contributor.service';
 
 /**
  * Strongly-typed binding key for SpecService

@@ -10,4 +10,3 @@ export * from './extension-point';
 export * from './filter-schema';
 export * from './json-to-schema';
 export * from './types';
-

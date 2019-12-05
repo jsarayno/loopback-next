@@ -64,7 +64,7 @@ export class SpecService {
     const contributors = await this.findContributors();
     if (!contributors) return this._spec;
     for (const c of contributors) {
-      await c.addSpec(this._spec);
+      c.addSpec(this._spec);
     }
     debug(`generated spec: ${inspect(this._spec, {depth: 10})}`);
     return this._spec;

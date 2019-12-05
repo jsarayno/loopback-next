@@ -12,6 +12,7 @@ import {OpenApiSpec} from '../types';
  * extensions to implement
  */
 export interface OAISpecContributor {
+  // should we make it an async function?
   addSpec(spec: OpenApiSpec): OpenApiSpec;
 }
 
