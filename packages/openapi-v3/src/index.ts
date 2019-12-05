@@ -6,6 +6,8 @@
 export * from '@loopback/repository-json-schema';
 export * from './controller-spec';
 export * from './decorators';
+export * from './extension-point';
 export * from './filter-schema';
 export * from './json-to-schema';
 export * from './types';
+

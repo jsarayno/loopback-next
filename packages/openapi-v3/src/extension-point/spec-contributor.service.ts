@@ -5,12 +5,14 @@
 
 import {config, Getter} from '@loopback/context';
 import {extensionPoint, extensions} from '@loopback/core';
-import {InfoObject} from 'openapi3-ts';
+import * as debugModule from 'debug';
+import {inspect} from 'util';
 import {OpenApiSpec} from '../types';
 import {
   OAISpecContributor,
   OAISPEC_CONTRIBUTOR_EXTENSION_POINT_NAME,
 } from './types';
+const debug = debugModule('loopback:openapi:spec-contributor');
 
 /**
  * Options for the OAI Spec contributor extension point
@@ -23,7 +25,7 @@ export interface OAISpecContributorServiceOptions {
  * An extension point for OAI contributors
  */
 @extensionPoint(OAISPEC_CONTRIBUTOR_EXTENSION_POINT_NAME)
-export class GreetingService {
+export class SpecService {
   constructor(
     /**
      * Inject a getter function to fetch spec contributors
@@ -38,42 +40,33 @@ export class GreetingService {
     public readonly options?: OAISpecContributorServiceOptions,
   ) {}
 
-  private _spec: Partial<OpenApiSpec> = {};
+  private _spec: OpenApiSpec = {
+    openapi: '3.0.0',
+    info: {
+      title: 'LoopBack Application',
+      version: '1.0.0',
+    },
+    paths: {},
+  };
 
   /**
    * Find contributors for a given field
    * @param fieldName - The field name
    */
-  async findContributors(
-    fieldName: string,
-  ): Promise<OAISpecContributor[] | undefined> {
-    const contributors = await this.getContributors();
-    return contributors.filter(c => c.fieldName === fieldName);
+  async findContributors(): Promise<OAISpecContributor[] | undefined> {
+    return this.getContributors();
   }
 
   /**
-   * Generate info spec from info contributors
-   * Other spec generators TBD
+   * Generate info spec from contributors
    */
-  async generateInfo(): Promise<InfoObject | undefined> {
-    const infoContributors = await this.findContributors('info');
-    if (!infoContributors) return;
-    let infoSpec = {};
-    for (const c of infoContributors) {
-      await c.addSpec(infoSpec);
+  async generateSpec(options = {}): Promise<OpenApiSpec> {
+    const contributors = await this.findContributors();
+    if (!contributors) return this._spec;
+    for (const c of contributors) {
+      await c.addSpec(this._spec);
     }
-    return infoSpec as InfoObject;
-  }
-
-  /**
-   * Load all extensions and get the complete OpenAPI Spec
-   * @param language - Language code
-   * @param name - Name
-   */
-  async loadAllSpec(): Promise<OpenApiSpec> {
-    const info = await this.generateInfo();
-    this._spec.info = info;
-    // TBD: load other fields `paths`, `security`, etc...
+    debug(`generated spec: ${inspect(this._spec, {depth: 10})}`);
     return this._spec;
   }
 }

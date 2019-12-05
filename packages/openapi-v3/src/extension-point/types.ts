@@ -12,16 +12,7 @@ import {OpenApiSpec} from '../types';
  * extensions to implement
  */
 export interface OAISpecContributor {
-  /**
-   * The name of root level fields in an OpenAPI specification,
-   * e.g. ROOT(the entire spec), info, paths, security, tags, etc...
-   *
-   *
-   * // question: should we use a union type to enum the valid fields
-   * // instead of using string?
-   */
-  fieldName: string;
-  addSpec(spec: Partial<OpenApiSpec>): Partial<OpenApiSpec>;
+  addSpec(spec: OpenApiSpec): OpenApiSpec;
 }
 
 /**
