@@ -6,6 +6,7 @@
 import {config, Getter} from '@loopback/context';
 import {extensionPoint, extensions} from '@loopback/core';
 import * as debugModule from 'debug';
+import * as _ from 'lodash';
 import {inspect} from 'util';
 import {OpenApiSpec} from '../types';
 import {
@@ -50,19 +51,11 @@ export class SpecService {
   };
 
   /**
-   * Find contributors for a given field
-   * @param fieldName - The field name
-   */
-  async findContributors(): Promise<OAISpecContributor[] | undefined> {
-    return this.getContributors();
-  }
-
-  /**
    * Generate info spec from contributors
    */
   async generateSpec(options = {}): Promise<OpenApiSpec> {
-    const contributors = await this.findContributors();
-    if (!contributors) return this._spec;
+    const contributors = await this.getContributors();
+    if (_.isEmpty(contributors)) return this._spec;
     for (const c of contributors) {
       c.addSpec(this._spec);
     }
