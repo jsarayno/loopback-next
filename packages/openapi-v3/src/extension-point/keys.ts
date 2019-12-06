@@ -4,11 +4,11 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {BindingKey} from '@loopback/context';
-import {SpecService} from './spec-contributor.service';
+import {OAISpecEnhancerService} from './spec-contributor.service';
 
 /**
  * Strongly-typed binding key for SpecService
  */
-export const SPEC_SERVICE = BindingKey.create<SpecService>(
-  'services.SpecService',
-);
+export const OAISPEC_ENHANCER_SERVICE = BindingKey.create<
+  OAISpecEnhancerService
+>('services.SpecService');

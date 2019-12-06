@@ -5,17 +5,17 @@
 
 import {bind} from '@loopback/context';
 import {
-  asSpecContributor,
-  OAISpecContributor,
+  asSpecEnhancer,
+  OAISpecEnhancer,
 } from '../../../../extension-point/types';
 import {OpenApiSpec} from '../../../../types';
 
 /**
  * A spec contributor to add OpenAPI info spec
  */
-@bind(asSpecContributor)
-export class InfoSpecContributor implements OAISpecContributor {
-  addSpec(spec: OpenApiSpec) {
+@bind(asSpecEnhancer)
+export class InfoSpecEnhancer implements OAISpecEnhancer {
+  modifySpec(spec: OpenApiSpec) {
     spec.info = {
       title: 'LoopBack Test Application',
       version: '1.0.1',

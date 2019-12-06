@@ -1,23 +1,23 @@
 import {Application, createBindingFromClass} from '@loopback/core';
-import {SpecService, SPEC_SERVICE} from '../../../../';
-import {InfoSpecContributor} from './info.spec.extension';
-import {SecuritySpecContributor} from './security.spec.extension';
+import {OAISpecEnhancerService, OAISPEC_ENHANCER_SERVICE} from '../../../../';
+import {InfoSpecEnhancer} from './info.spec.extension';
+import {SecuritySpecEnhancer} from './security.spec.extension';
 
 export class SpecServiceApplication extends Application {
   constructor() {
     super();
     this.add(
-      createBindingFromClass(SpecService, {
-        key: SPEC_SERVICE,
+      createBindingFromClass(OAISpecEnhancerService, {
+        key: OAISPEC_ENHANCER_SERVICE,
       }),
     );
-    this.add(createBindingFromClass(SecuritySpecContributor));
-    this.add(createBindingFromClass(InfoSpecContributor));
+    this.add(createBindingFromClass(SecuritySpecEnhancer));
+    this.add(createBindingFromClass(InfoSpecEnhancer));
   }
 
   async main() {}
 
   getSpecService() {
-    return this.get(SPEC_SERVICE);
+    return this.get(OAISPEC_ENHANCER_SERVICE);
   }
 }

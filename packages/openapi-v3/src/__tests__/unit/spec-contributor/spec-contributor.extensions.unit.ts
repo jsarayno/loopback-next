@@ -4,12 +4,12 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {expect} from '@loopback/testlab';
-import {SpecService} from '../../../';
+import {OAISpecEnhancerService} from '../../../';
 import {SpecServiceApplication} from './fixtures/application';
 
-describe('spec-contributor-extension-point', () => {
+describe('spec-enhancer-extension-point', () => {
   let app: SpecServiceApplication;
-  let specService: SpecService;
+  let specService: OAISpecEnhancerService;
 
   beforeEach(givenAppWithSpecComponent);
   beforeEach(findSpecService);

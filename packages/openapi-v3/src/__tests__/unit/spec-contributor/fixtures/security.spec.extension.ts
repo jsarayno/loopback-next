@@ -6,8 +6,8 @@
 import {bind} from '@loopback/context';
 import {ReferenceObject, SecuritySchemeObject} from '../../../../';
 import {
-  asSpecContributor,
-  OAISpecContributor,
+  asSpecEnhancer,
+  OAISpecEnhancer,
 } from '../../../../extension-point/types';
 import {OpenApiSpec} from '../../../../types';
 
@@ -27,9 +27,9 @@ export const SECURITY_SCHEME_SPEC: SecuritySchemeObjects = {
  * A spec contributor to add bearer token
  * OpenAPI security entry
  */
-@bind(asSpecContributor)
-export class SecuritySpecContributor implements OAISpecContributor {
-  addSpec(spec: OpenApiSpec) {
+@bind(asSpecEnhancer)
+export class SecuritySpecEnhancer implements OAISpecEnhancer {
+  modifySpec(spec: OpenApiSpec) {
     spec.components = spec.components ?? {};
     spec.components.securitySchemes = SECURITY_SCHEME_SPEC;
     return spec;

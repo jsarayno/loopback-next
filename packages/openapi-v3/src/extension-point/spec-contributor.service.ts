@@ -9,10 +9,7 @@ import * as debugModule from 'debug';
 import * as _ from 'lodash';
 import {inspect} from 'util';
 import {OpenApiSpec} from '../types';
-import {
-  OAISpecContributor,
-  OAISPEC_CONTRIBUTOR_EXTENSION_POINT_NAME,
-} from './types';
+import {OAISpecEnhancer, OAISPEC_ENHANCER_EXTENSION_POINT_NAME} from './types';
 const debug = debugModule('loopback:openapi:spec-contributor');
 
 /**
@@ -25,14 +22,14 @@ export interface OAISpecContributorServiceOptions {
 /**
  * An extension point for OAI contributors
  */
-@extensionPoint(OAISPEC_CONTRIBUTOR_EXTENSION_POINT_NAME)
-export class SpecService {
+@extensionPoint(OAISPEC_ENHANCER_EXTENSION_POINT_NAME)
+export class OAISpecEnhancerService {
   constructor(
     /**
      * Inject a getter function to fetch spec contributors
      */
     @extensions()
-    private getContributors: Getter<OAISpecContributor[]>,
+    private getContributors: Getter<OAISpecEnhancer[]>,
     /**
      * An extension point should be able to receive its options via dependency
      * injection.
@@ -50,14 +47,21 @@ export class SpecService {
     paths: {},
   };
 
+  get spec(): OpenApiSpec {
+    return this._spec;
+  }
+  set spec(value: OpenApiSpec) {
+    this._spec = value;
+  }
+
   /**
-   * Generate info spec from contributors
+   * Generate OpenAPI spec from contributors
    */
   async generateSpec(options = {}): Promise<OpenApiSpec> {
     const contributors = await this.getContributors();
     if (_.isEmpty(contributors)) return this._spec;
     for (const c of contributors) {
-      c.addSpec(this._spec);
+      c.modifySpec(this._spec);
     }
     debug(`generated spec: ${inspect(this._spec, {depth: 10})}`);
     return this._spec;
