@@ -46,17 +46,17 @@ describe('Basic Authentication', () => {
   it('authenticates successfully for correct credentials', async () => {
     const client = whenIMakeRequestTo(server);
     const credential =
-      users.list.joe.profile[securityId] + ':' + users.list.joe.password;
+      users.list.Joseph.profile.id + ':' + users.list.Joseph.password;
     const hash = Buffer.from(credential).toString('base64');
     await client
       .get('/whoAmI')
       .set('Authorization', 'Basic ' + hash)
-      .expect(users.list.joe.profile[securityId]);
+      .expect(users.list.Joseph.profile.id);
   });
 
   it('returns error for invalid credentials', async () => {
     const client = whenIMakeRequestTo(server);
-    const credential = users.list.Simpson.profile[securityId] + ':' + 'invalid';
+    const credential = users.list.Simon.profile.id + ':' + 'invalid';
     const hash = Buffer.from(credential).toString('base64');
     await client
       .get('/whoAmI')
@@ -64,7 +64,7 @@ describe('Basic Authentication', () => {
       .expect(401);
   });
 
-  it('allows anonymous requests to methods with no decorator', async () => {
+  it(`allows anonymous requests to methods with no 'authenticate' decorator`, async () => {
     class InfoController {
       @get('/status')
       status() {
@@ -78,13 +78,48 @@ describe('Basic Authentication', () => {
       .expect(200, {running: true});
   });
 
-  // FIXME: In a real database the column/field won't be a symbol
   function givenUserRepository() {
     users = new UserRepository({
-      joe: {profile: {[securityId]: 'joe'}, password: '12345'},
-      Simpson: {profile: {[securityId]: 'sim123'}, password: 'alpha'},
-      Flinstone: {profile: {[securityId]: 'Flint'}, password: 'beta'},
-      George: {profile: {[securityId]: 'Curious'}, password: 'gamma'},
+      Joseph: {
+        profile: {
+          id: 'joe',
+          name: 'Joseph Smith',
+          email: 'joseph_smith@example.com',
+          city: 'New York',
+          worksRemotely: true,
+        },
+        password: '12345',
+      },
+      Simon: {
+        profile: {
+          id: 'simon',
+          name: 'Simon Smith',
+          email: 'simon_smith@example.com',
+          city: 'San Francisco',
+          worksRemotely: false,
+        },
+        password: 'alpha',
+      },
+      Flint: {
+        profile: {
+          id: 'flint',
+          name: 'Flint Smith',
+          email: 'flint_smith@example.com',
+          city: 'Chicago',
+          worksRemotely: true,
+        },
+        password: 'beta',
+      },
+      Curious: {
+        profile: {
+          id: 'curious',
+          name: 'Curious Smith',
+          email: 'curious_smith@example.com',
+          city: 'Los Angeles',
+          worksRemotely: false,
+        },
+        password: 'gamma',
+      },
     });
   }
 
@@ -98,10 +133,22 @@ describe('Basic Authentication', () => {
   function verify(username: string, password: string, cb: Function) {
     users.find(username, password, cb);
   }
+
+  //
+  // The purpose of this function is to convert
+  // a user instance into a user profile instance.
+  // (A user profile should contain less data than a user)
+  //
+  function converter(user: MyUser): UserProfile {
+    const userProfile = Object.assign({}, {[securityId]: user.id});
+    return userProfile;
+  }
+
   const basicStrategy = new BasicStrategy(verify);
   const basicAuthStrategy = new StrategyAdapter(
     basicStrategy,
     AUTH_STRATEGY_NAME,
+    converter,
   );
 
   async function givenAServer() {
@@ -214,14 +261,25 @@ describe('Basic Authentication', () => {
   }
 });
 
+//
+// A simple User model
+//
+interface MyUser {
+  id: string;
+  name: string;
+  email: string;
+  city: string;
+  worksRemotely: boolean;
+}
+
 class UserRepository {
   constructor(
-    readonly list: {[key: string]: {profile: UserProfile; password: string}},
+    readonly list: {[key: string]: {profile: MyUser; password: string}},
   ) {}
   find(username: string, password: string, cb: Function): void {
     const userList = this.list;
     function search(key: string) {
-      return userList[key].profile[securityId] === username;
+      return userList[key].profile.id === username;
     }
     const found = Object.keys(userList).find(search);
     if (!found) return cb(null, false);
