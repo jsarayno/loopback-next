@@ -31,7 +31,7 @@ export namespace AuthenticationBindings {
    * ```ts
    * server
    *   .bind(AuthenticationBindings.USER_PROFILE_FACTORY)
-   *   .toClass(MyUserProfileFactory);
+   *   .to(myUserProfileFactory);
    * ```
    */
   /* eslint-disable @typescript-eslint/no-explicit-any */

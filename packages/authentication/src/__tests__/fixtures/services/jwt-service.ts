@@ -34,6 +34,7 @@ export class JWTService implements TokenService {
       // decode user profile from token
       userProfile = await verifyAsync(token, this.jwtSecret);
       userProfile[securityId] = userProfile.id;
+      delete userProfile.id;
     } catch (error) {
       throw new HttpErrors.Unauthorized(
         `Error verifying token : ${error.message}`,
@@ -50,14 +51,15 @@ export class JWTService implements TokenService {
       );
     }
 
-    const userInfoForToken = {
+    // since userProfile[securityId] cannot be serialized, we need to store its value in an 'id' field
+    const userProfileWithID = Object.assign({}, userProfile, {
       id: userProfile[securityId],
-    };
+    });
 
     // Generate a JSON Web Token
     let token: string;
     try {
-      token = await signAsync(userInfoForToken, this.jwtSecret, {
+      token = await signAsync(userProfileWithID, this.jwtSecret, {
         expiresIn: Number(this.jwtExpiresIn),
       });
     } catch (error) {

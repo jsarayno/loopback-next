@@ -7,9 +7,9 @@ import {Application} from '@loopback/core';
 import {RestComponent} from '@loopback/rest';
 import {securityId, UserProfile} from '@loopback/security';
 import {AuthenticationComponent} from '../..';
+import {UserProfileFactory} from '../../types';
 import {User} from './users/user';
 import {UserRepository} from './users/user.repository';
-
 /**
  * Returns an application that has loaded the authentication and rest components
  */
@@ -102,7 +102,14 @@ export function createBearerAuthorizationHeaderValue(
   return prefix + token;
 }
 
-export function createUserProfile(user: User): UserProfile {
+/**
+ * Convert a User instance to an object in type UserProfile
+ * @param user
+ */
+
+export const myUserProfileFactory: UserProfileFactory<User> = function(
+  user: User,
+): UserProfile {
   const userProfile: UserProfile = {[securityId]: '', name: ''};
 
   if (user.id) userProfile[securityId] = user.id;
@@ -114,4 +121,4 @@ export function createUserProfile(user: User): UserProfile {
   userProfile.name = userName;
 
   return userProfile;
-}
+};
