@@ -9,27 +9,20 @@ import {
   ModelApiBuilder,
   ModelApiConfig,
 } from '@loopback/model-api-builder';
-import {get, Model} from '@loopback/rest';
+import {Model} from '@loopback/rest';
 import {BooterApp} from './application';
+
+export const buildCalls: object[] = [];
 
 @bind(asModelApiBuilder)
 class StubModelApiBuilder implements ModelApiBuilder {
   readonly pattern: string = 'stub';
-  build(
+  async build(
     application: BooterApp,
     modelClass: typeof Model & {prototype: Model},
-    cfg: ModelApiConfig,
+    config: ModelApiConfig,
   ): Promise<void> {
-    application.controller(StubController);
-    return Promise.resolve();
-  }
-}
-
-// sample controller class
-class StubController {
-  @get('/products', {responses: {}})
-  products() {
-    return 'products';
+    buildCalls.push({application, modelClass, config});
   }
 }
 

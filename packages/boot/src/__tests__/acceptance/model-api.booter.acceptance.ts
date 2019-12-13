@@ -7,16 +7,20 @@ import {ApplicationConfig} from '@loopback/core';
 import {juggler, RepositoryMixin} from '@loopback/repository';
 import {RestApplication} from '@loopback/rest';
 import {
-  createRestAppClient,
   expect,
   givenHttpServerConfig,
   TestSandbox,
+  toJSON,
 } from '@loopback/testlab';
 import {resolve} from 'path';
 import {BootMixin, ModelApiBooter} from '../..';
-import {StubModelApiBuilderComponent} from '../fixtures/stub-model-api-builder';
+import {Product} from '../fixtures/product.model';
+import {
+  buildCalls,
+  StubModelApiBuilderComponent,
+} from '../fixtures/stub-model-api-builder';
 
-describe('rest booter acceptance tests', () => {
+describe('model API booter acceptance tests', () => {
   let app: BooterApp;
   const SANDBOX_PATH = resolve(__dirname, '../../.sandbox');
   const sandbox = new TestSandbox(SANDBOX_PATH);
@@ -26,7 +30,7 @@ describe('rest booter acceptance tests', () => {
 
   afterEach(stopApp);
 
-  it('gets simple controller path', async () => {
+  it('uses the correct model API builder', async () => {
     await sandbox.copyFile(
       resolve(__dirname, '../fixtures/product.model.js'),
       'models/product.model.js',
@@ -48,10 +52,20 @@ module.exports = {
     // Boot & start the application
     await app.boot();
     await app.start();
-    const client = createRestAppClient(app);
 
-    const response = await client.get('/products').expect(200);
-    expect(response.text).to.eql('products');
+    expect(toJSON(buildCalls)).to.deepEqual(
+      toJSON([
+        {
+          application: app,
+          modelClass: Product,
+          config: {
+            basePath: '/products',
+            dataSource: 'db',
+            pattern: 'stub',
+          },
+        },
+      ]),
+    );
   });
 
   it('throws if there are no patterns matching', async () => {
@@ -73,9 +87,32 @@ module.exports = {
       `,
     );
 
-    // Boot & start the application
     await expect(app.boot()).to.be.rejectedWith(
       /Unsupported API pattern "doesntExist"/,
+    );
+  });
+
+  it('throws if the model class is invalid', async () => {
+    await sandbox.copyFile(
+      resolve(__dirname, '../fixtures/product.model.js'),
+      'models/product.model.js',
+    );
+
+    await sandbox.writeTextFile(
+      'model-endpoints/product.rest-config.js',
+      `
+const Product = 'product'
+module.exports = {
+  model: Product,
+  pattern: 'stub',
+  dataSource: 'db',
+  basePath: '/products',
+};
+      `,
+    );
+
+    await expect(app.boot()).to.be.rejectedWith(
+      /Invalid "model" field\. Expected a Model class, found product/,
     );
   });
 

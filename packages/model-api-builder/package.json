@@ -40,6 +40,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/strongloop/loopback-next.git",
-    "directory": "packages/rest-builder-plugin"
+    "directory": "packages/model-api-builder"
   }
 }
